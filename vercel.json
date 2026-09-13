@@ -1,0 +1,5 @@
+{
+  "installCommand": "npx pnpm@10.17.1 install --no-frozen-lockfile",
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist"
+}
