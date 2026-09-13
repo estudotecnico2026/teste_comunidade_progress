@@ -8,3 +8,8 @@ supportedArchitectures:
     - arm64
   libc:
     - glibc
+allowBuilds:
+  '@firebase/util': true
+  '@tailwindcss/oxide': true
+  esbuild: true
+  protobufjs: true
