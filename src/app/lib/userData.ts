@@ -1,28 +1,29 @@
-// src/app/lib/userData.ts
-// Funções para salvar e carregar os dados de CADA usuário no Firestore.
-// Os posts de exemplo da comunidade (COMMUNITY_POSTS, em data.ts) continuam
-// aparecendo para todo mundo e NÃO são tocados por este arquivo — aqui só
-// guardamos o que pertence de fato ao usuário logado.
-
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDb } from "./firebase";
-import type { Goal, Study, CommunityPost, AppSettings } from "../types";
+
+import type {
+  Goal,
+  Study,
+  CommunityPost,
+  AppSettings,
+} from "../types";
 
 export interface PersistedUserData {
   goals: Goal[];
   studies: Study[];
-  myPosts: CommunityPost[]; // só os posts CRIADOS por este usuário (isFromUser)
+  myPosts: CommunityPost[];
+
   streak: number;
   totalHoursStudied: number;
   totalXP: number;
   notificationsEnabled: boolean;
+
   joinedAt?: string;
-  // Dados editáveis do perfil (nome/foto) e do plano de estudos (lembrete,
-  // meta diária de horas) — sem isso, essas edições se perdiam a cada
-  // atualização de página ou novo login.
+
   name?: string;
   avatarUrl?: string;
   avatarInitials?: string;
+
   settings?: AppSettings;
 }
 
@@ -36,43 +37,60 @@ const EMPTY_USER_DATA: PersistedUserData = {
   notificationsEnabled: true,
 };
 
-// Carrega os dados salvos deste usuário. Se ele nunca salvou nada
-// (é novo, ou é a primeira vez usando esta versão do app), retorna vazio —
-// nunca devolve dados de demonstração.
-export async function loadUserData(uid: string): Promise<PersistedUserData> {
-  try {
-    const ref = doc(getDb(), "userData", uid);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const data = snap.data();
-      return {
-        goals: data.goals ?? [],
-        studies: data.studies ?? [],
-        myPosts: data.myPosts ?? [],
-        streak: data.streak ?? 0,
-        totalHoursStudied: data.totalHoursStudied ?? 0,
-        totalXP: data.totalXP ?? 0,
-        notificationsEnabled: data.notificationsEnabled ?? true,
-        joinedAt: data.joinedAt,
-        name: data.name,
-        avatarUrl: data.avatarUrl,
-        avatarInitials: data.avatarInitials,
-        settings: data.settings,
-      };
-    }
-    return EMPTY_USER_DATA;
-  } catch (err) {
-    console.error("[userData] Falha ao carregar:", err);
+export async function loadUserData(
+  uid: string
+): Promise<PersistedUserData> {
+
+  if (!uid) {
+    throw new Error("loadUserData: UID do usuário não informado.");
+  }
+
+  const ref = doc(getDb(), "userData", uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
     return EMPTY_USER_DATA;
   }
+
+  const data = snap.data();
+
+  return {
+    goals: data.goals ?? [],
+    studies: data.studies ?? [],
+    myPosts: data.myPosts ?? [],
+
+    streak: data.streak ?? 0,
+    totalHoursStudied: data.totalHoursStudied ?? 0,
+    totalXP: data.totalXP ?? 0,
+    notificationsEnabled: data.notificationsEnabled ?? true,
+
+    joinedAt: data.joinedAt,
+
+    name: data.name,
+    avatarUrl: data.avatarUrl,
+    avatarInitials: data.avatarInitials,
+
+    settings: data.settings,
+  };
 }
 
-// Salva (mescla) os dados deste usuário no Firestore.
-export async function saveUserData(uid: string, data: PersistedUserData): Promise<void> {
-  try {
-    const ref = doc(getDb(), "userData", uid);
-    await setDoc(ref, data, { merge: true });
-  } catch (err) {
-    console.error("[userData] Falha ao salvar:", err);
+export async function saveUserData(
+  uid: string,
+  data: PersistedUserData
+): Promise<void> {
+
+  if (!uid) {
+    throw new Error("saveUserData: UID do usuário não informado.");
   }
+
+  const ref = doc(getDb(), "userData", uid);
+
+  await setDoc(
+    ref,
+    {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
 }
