@@ -1573,7 +1573,13 @@ export default function App() {
       totalXP: data.totalXP,
       notificationsEnabled: data.notificationsEnabled,
       joinedAt: data.joinedAt ?? prev.joinedAt,
+      // Nome/foto: se o usuário já editou o perfil antes, usamos o que foi
+      // salvo; senão mantemos o que veio do Google/e-mail no login.
+      name: data.name ?? prev.name,
+      avatarUrl: data.avatarUrl ?? prev.avatarUrl,
+      avatarInitials: data.avatarInitials ?? prev.avatarInitials,
     }));
+    if (data.settings) setSettings(data.settings);
     hasLoadedRealData.current = true;
   }, []);
 
@@ -1641,8 +1647,16 @@ export default function App() {
       totalXP: user.totalXP,
       notificationsEnabled: user.notificationsEnabled,
       joinedAt: user.joinedAt,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      avatarInitials: user.avatarInitials,
+      settings,
     }).catch(err => console.error("[userData] Falha ao salvar:", err));
-  }, [goals, studies, posts, user.uid, user.streak, user.totalHoursStudied, user.totalXP, user.notificationsEnabled, user.joinedAt]);
+  }, [
+    goals, studies, posts, user.uid,
+    user.streak, user.totalHoursStudied, user.totalXP, user.notificationsEnabled, user.joinedAt,
+    user.name, user.avatarUrl, user.avatarInitials, settings,
+  ]);
 
   const handleLogout = useCallback(async () => {
     await signOut(auth);
