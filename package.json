@@ -8,8 +8,6 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@emotion/react": "11.14.0",
-    "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",
     "@mui/material": "7.3.5",
     "@popperjs/core": "2.11.8",
@@ -66,6 +64,8 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5",
@@ -87,5 +87,11 @@
     "overrides": {
       "vite": "6.3.5"
     }
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "@tailwindcss/oxide@4.1.12": true,
+    "esbuild@0.25.12": true,
+    "protobufjs@7.6.6": true
   }
 }
