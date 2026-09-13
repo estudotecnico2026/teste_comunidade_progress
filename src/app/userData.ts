@@ -5,7 +5,7 @@
 // guardamos o que pertence de fato ao usuário logado.
 
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { getDb } from "./firebase";
 import type { Goal, Study, CommunityPost } from "../types";
 
 export interface PersistedUserData {
@@ -34,7 +34,7 @@ const EMPTY_USER_DATA: PersistedUserData = {
 // nunca devolve dados de demonstração.
 export async function loadUserData(uid: string): Promise<PersistedUserData> {
   try {
-    const ref = doc(db, "userData", uid);
+    const ref = doc(getDb(), "userData", uid);
     const snap = await getDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
@@ -58,6 +58,10 @@ export async function loadUserData(uid: string): Promise<PersistedUserData> {
 
 // Salva (mescla) os dados deste usuário no Firestore.
 export async function saveUserData(uid: string, data: PersistedUserData): Promise<void> {
-  const ref = doc(db, "userData", uid);
-  await setDoc(ref, data, { merge: true });
+  try {
+    const ref = doc(getDb(), "userData", uid);
+    await setDoc(ref, data, { merge: true });
+  } catch (err) {
+    console.error("[userData] Falha ao salvar:", err);
+  }
 }
