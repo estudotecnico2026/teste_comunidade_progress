@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion, AnimatePresence } from "motion/react";
-import { onAuthStateChanged, signOut, type User as FirebaseUser } from "firebase/auth";
-import { auth } from "./lib/firebase";
+import { signOut, type User as FirebaseUser } from "firebase/auth";
+import { auth, subscribeToAuthChanges } from "./lib/firebase";
 import { cn } from "./components/ui/utils";
 import type {
   GoalCategory, GoalStatus, StudyStatus, Tab,
@@ -1505,7 +1505,7 @@ export default function App() {
   // 2) signOut() é chamado (ex: botão "Sair da conta") — o listener detecta
   //    a mudança e devolve a pessoa para a tela de login automaticamente.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = subscribeToAuthChanges((firebaseUser) => {
       if (firebaseUser) {
         setUser((prev) => {
           // Se já temos progresso carregado para este mesmo uid (ex: acabou
