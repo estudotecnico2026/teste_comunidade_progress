@@ -18,15 +18,67 @@ import type {
   CommunityPost,
 } from "./types";
 import {
-  INIT_USER, INIT_GOALS, INIT_STUDIES,
+  INIT_USER,
   COMMUNITY_POSTS,
-  WEEKLY_HOURS, ANNUAL_HOURS,
   STUDY_TYPE_CONFIG, STUDY_STATUS_CONFIG,
   CATEGORY_CONFIG,
-  daysLeft, weeklyTotal, todayISO,
+  daysLeft, todayISO,
   computeLevel, getGoalStats,
 } from "./data";
 import { ModalCtx, DataCtx, useModal, useData } from "./contexts";
+import { loadUserData, saveUserData } from "./lib/userData";
+
+// ─── Gráficos calculados a partir do histórico REAL do usuário ────────────────
+// Antes esses dados vinham fixos de WEEKLY_HOURS/ANNUAL_HOURS (data.ts).
+// Agora somamos as horas de cada sessão de estudo (`study.sessions`) por
+// dia da semana e por mês, então cada usuário vê apenas o próprio progresso.
+function computeWeeklyHours(studies: Study[]): { day: string; h: number }[] {
+  const labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  const totals: Record<string, number> = Object.fromEntries(labels.map(d => [d, 0]));
+
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // volta até a segunda-feira desta semana
+  monday.setHours(0, 0, 0, 0);
+
+  studies.forEach(study => {
+    (study.sessions ?? []).forEach(session => {
+      const d = new Date(session.date + "T00:00:00");
+      const diffDays = Math.floor((d.getTime() - monday.getTime()) / 86_400_000);
+      if (diffDays >= 0 && diffDays < 7) {
+        totals[labels[diffDays]] += session.hours;
+      }
+    });
+  });
+
+  return labels.map(day => ({ day, h: Math.round(totals[day] * 10) / 10 }));
+}
+
+function computeWeeklyTotal(studies: Study[]): number {
+  return computeWeeklyHours(studies).reduce((sum, d) => sum + d.h, 0);
+}
+
+function computeAnnualHours(studies: Study[]): { m: string; h: number }[] {
+  const monthLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const now = new Date();
+  // Últimos 12 meses, terminando no mês atual.
+  const months: { key: string; m: string; h: number }[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, m: monthLabels[d.getMonth()], h: 0 });
+  }
+
+  studies.forEach(study => {
+    (study.sessions ?? []).forEach(session => {
+      const d = new Date(session.date + "T00:00:00");
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const entry = months.find(mo => mo.key === key);
+      if (entry) entry.h += session.hours;
+    });
+  });
+
+  return months.map(({ m, h }) => ({ m, h: Math.round(h * 10) / 10 }));
+}
 import { GoalCreateModal, GoalDetailModal } from "./GoalModals";
 import { StudyCreateModal, StudyDetailModal } from "./StudyModals";
 import { CommunityScreen } from "./CommunityScreens";
@@ -150,7 +202,8 @@ function DashboardScreen({ onTabChange }: { onTabChange: (tab: Tab) => void }) {
   const { goals, studies, user } = useData();
   const activeGoals     = goals.filter(g => g.status === "ativo").length;
   const inProgress      = studies.filter(s => s.status === "em-andamento").length;
-  const weekHours       = weeklyTotal();
+  const weeklyHours     = useMemo(() => computeWeeklyHours(studies), [studies]);
+  const weekHours       = useMemo(() => computeWeeklyTotal(studies), [studies]);
   const recentStudies   = studies.filter(s => s.status === "em-andamento").slice(0, 3);
   const levelInfo       = computeLevel(user.totalXP);
 
@@ -310,9 +363,10 @@ function DashboardScreen({ onTabChange }: { onTabChange: (tab: Tab) => void }) {
           <span className="text-xs text-muted-foreground">{weekHours}h de 14h meta</span>
         </div>
         <div className="flex items-end gap-1.5 h-14">
-          {WEEKLY_HOURS.map((d, i) => {
+          {weeklyHours.map((d, i) => {
             const pct = d.h / 5;
-            const isToday = i === 5;
+            const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+            const isToday = i === todayIndex;
             return (
               <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full rounded-sm bg-muted relative" style={{ height: 44 }}>
@@ -939,7 +993,7 @@ function StudiesScreen() {
 }
 
 // ─── Custom Charts ────────────────────────────────────────────────────────────
-function WeeklyBars({ data }: { data: typeof WEEKLY_HOURS }) {
+function WeeklyBars({ data }: { data: Array<{ day: string; h: number }> }) {
   const max = Math.max(...data.map(d => d.h), 1);
   return (
     <div className="flex items-end gap-1.5" style={{ height: 120 }}>
@@ -1009,9 +1063,11 @@ function ProgressScreen() {
   const levelInfo        = computeLevel(user.totalXP);
   const nextLevelInfo    = levelInfo.next;
 
-  const annualTotal  = ANNUAL_HOURS.reduce((s, m) => s + m.h, 0);
-  const bestMonth    = ANNUAL_HOURS.reduce((best, m) => m.h > best.h ? m : best, ANNUAL_HOURS[0]);
-  const monthsActive = ANNUAL_HOURS.filter(m => m.h > 0).length;
+  const weeklyHours   = useMemo(() => computeWeeklyHours(studies), [studies]);
+  const annualHours   = useMemo(() => computeAnnualHours(studies), [studies]);
+  const annualTotal   = Math.round(annualHours.reduce((s, m) => s + m.h, 0) * 10) / 10;
+  const bestMonth     = annualHours.reduce((best, m) => m.h > best.h ? m : best, annualHours[0]);
+  const monthsActive  = annualHours.filter(m => m.h > 0).length;
 
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
 
@@ -1135,7 +1191,7 @@ function ProgressScreen() {
       <div className="md:grid md:grid-cols-2 md:gap-5 mb-5">
         <div className="bg-card border border-border rounded-2xl p-4 mb-5 md:mb-0">
           <h2 className="font-semibold text-foreground text-sm mb-4">Horas esta semana</h2>
-          <WeeklyBars data={WEEKLY_HOURS} />
+          <WeeklyBars data={weeklyHours} />
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-4">
@@ -1143,7 +1199,7 @@ function ProgressScreen() {
             <h2 className="font-semibold text-foreground text-sm">Evolução anual</h2>
             <span className="text-xs text-muted-foreground">{annualTotal}h no ano</span>
           </div>
-          <MonthlyArea data={ANNUAL_HOURS} />
+          <MonthlyArea data={annualHours} />
           <div className="grid grid-cols-3 gap-2 mt-4">
             <div className="text-center">
               <p className="text-sm font-bold text-foreground">{annualTotal}h</p>
@@ -1421,12 +1477,10 @@ function BottomNav({ active, onChange }: { active: Tab; onChange: (tab: Tab) => 
 type AppPhase = "loading" | "auth" | "onboarding" | "app";
 const ONBOARDING_DONE_KEY = "progress_onboarding_v1";
 
-// Monta um UserProfile a partir dos dados reais do Firebase, preenchendo
-// o restante (streak, XP, etc.) com valores padrão de conta nova. Enquanto
-// não houver um banco de dados conectado (Firestore/Supabase), o progresso
-// de contas que já existiam antes é reconstituído a partir dos dados de
-// demonstração (INIT_USER/INIT_GOALS/INIT_STUDIES) — apenas a identidade
-// (uid, nome, e-mail, foto, provedor) vem do Firebase de verdade.
+// Monta um UserProfile a partir dos dados reais do Firebase Auth (identidade:
+// uid, nome, e-mail, foto, provedor). Os valores de progresso (streak, XP,
+// horas, etc.) começam zerados aqui e são sobrescritos logo em seguida por
+// loadRealUserData(), que busca o progresso salvo de verdade no Firestore.
 function buildUserFromFirebase(firebaseUser: FirebaseUser): UserProfile {
   const provider = firebaseUser.providerData[0]?.providerId as UserProfile["authProvider"] | undefined;
   const name = firebaseUser.displayName?.trim() || firebaseUser.email?.split("@")[0] || "Usuário";
@@ -1499,6 +1553,30 @@ export default function App() {
     }));
   }, []);
 
+  // Evita salvar no Firestore dados de exemplo/carregamento antes que o
+  // progresso real do usuário tenha sido buscado ao menos uma vez.
+  const hasLoadedRealData = React.useRef(false);
+
+  // Busca no Firestore o progresso REAL deste usuário (objetivos, estudos,
+  // posts que ele mesmo criou e estatísticas de perfil). Os posts de
+  // demonstração da comunidade (COMMUNITY_POSTS) continuam aparecendo pra
+  // todo mundo — só somamos os posts próprios do usuário por cima.
+  const loadRealUserData = useCallback(async (uid: string) => {
+    const data = await loadUserData(uid);
+    setGoals(data.goals);
+    setStudies(data.studies);
+    setPosts([...data.myPosts, ...COMMUNITY_POSTS]);
+    setUser(prev => ({
+      ...prev,
+      streak: data.streak,
+      totalHoursStudied: data.totalHoursStudied,
+      totalXP: data.totalXP,
+      notificationsEnabled: data.notificationsEnabled,
+      joinedAt: data.joinedAt ?? prev.joinedAt,
+    }));
+    hasLoadedRealData.current = true;
+  }, []);
+
   // ── Auth / onboarding handlers ────────────────────────────────────────────
   // Ouve o estado de autenticação real do Firebase. Isso cobre dois casos:
   // 1) usuário recarrega a página com uma sessão já ativa (mantém logado);
@@ -1519,15 +1597,16 @@ export default function App() {
           if (prevPhase === "onboarding" || prevPhase === "app") return prevPhase;
           return "app";
         });
-        setGoals((prev) => (prev.length ? prev : INIT_GOALS));
-        setStudies((prev) => (prev.length ? prev : INIT_STUDIES));
-        setPosts((prev) => (prev.length ? prev : COMMUNITY_POSTS));
+        // Busca o progresso REAL salvo no Firestore para este uid, em vez
+        // de usar dados de exemplo.
+        loadRealUserData(firebaseUser.uid);
       } else {
         setPhase("auth");
+        hasLoadedRealData.current = false;
       }
     });
     return unsubscribe;
-  }, []);
+  }, [loadRealUserData]);
 
   const handleAuthSuccess = useCallback((firebaseUser: FirebaseUser, isNewUser: boolean) => {
     const profile = buildUserFromFirebase(firebaseUser);
@@ -1536,23 +1615,44 @@ export default function App() {
       setGoals([]);
       setStudies([]);
       setPosts(COMMUNITY_POSTS);
+      hasLoadedRealData.current = true; // conta nova: não há nada a buscar, já é o estado real
       const alreadySeen = localStorage.getItem(ONBOARDING_DONE_KEY) === "done";
       setPhase(alreadySeen ? "app" : "onboarding");
     } else {
-      setGoals(INIT_GOALS);
-      setStudies(INIT_STUDIES);
-      setPosts(COMMUNITY_POSTS);
+      // Usuário já existia: busca o que ele salvou de verdade no Firestore,
+      // em vez de carregar os dados de demonstração.
+      loadRealUserData(firebaseUser.uid);
       setPhase("app");
     }
-  }, []);
+  }, [loadRealUserData]);
+
+  // Sempre que objetivos, estudos, posts próprios ou estatísticas do perfil
+  // mudarem, salva automaticamente no Firestore — assim nada se perde ao
+  // atualizar a página ou logar em outro dispositivo.
+  useEffect(() => {
+    if (!user.uid || !hasLoadedRealData.current) return;
+    const myPosts = posts.filter(p => p.isFromUser);
+    saveUserData(user.uid, {
+      goals,
+      studies,
+      myPosts,
+      streak: user.streak,
+      totalHoursStudied: user.totalHoursStudied,
+      totalXP: user.totalXP,
+      notificationsEnabled: user.notificationsEnabled,
+      joinedAt: user.joinedAt,
+    }).catch(err => console.error("[userData] Falha ao salvar:", err));
+  }, [goals, studies, posts, user.uid, user.streak, user.totalHoursStudied, user.totalXP, user.notificationsEnabled, user.joinedAt]);
 
   const handleLogout = useCallback(async () => {
     await signOut(auth);
     // onAuthStateChanged (acima) detecta o logout e ajusta a fase/tela
     // automaticamente; aqui só limpamos o estado local em memória.
+    hasLoadedRealData.current = false;
     setUser(INIT_USER);
     setGoals([]);
     setStudies([]);
+    setPosts(COMMUNITY_POSTS);
     setTab("dashboard");
   }, []);
 
