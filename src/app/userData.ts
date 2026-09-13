@@ -6,7 +6,7 @@
 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDb } from "./firebase";
-import type { Goal, Study, CommunityPost } from "../types";
+import type { Goal, Study, CommunityPost, AppSettings } from "../types";
 
 export interface PersistedUserData {
   goals: Goal[];
@@ -17,6 +17,13 @@ export interface PersistedUserData {
   totalXP: number;
   notificationsEnabled: boolean;
   joinedAt?: string;
+  // Dados editáveis do perfil (nome/foto) e do plano de estudos (lembrete,
+  // meta diária de horas) — sem isso, essas edições se perdiam a cada
+  // atualização de página ou novo login.
+  name?: string;
+  avatarUrl?: string;
+  avatarInitials?: string;
+  settings?: AppSettings;
 }
 
 const EMPTY_USER_DATA: PersistedUserData = {
@@ -47,6 +54,10 @@ export async function loadUserData(uid: string): Promise<PersistedUserData> {
         totalXP: data.totalXP ?? 0,
         notificationsEnabled: data.notificationsEnabled ?? true,
         joinedAt: data.joinedAt,
+        name: data.name,
+        avatarUrl: data.avatarUrl,
+        avatarInitials: data.avatarInitials,
+        settings: data.settings,
       };
     }
     return EMPTY_USER_DATA;
