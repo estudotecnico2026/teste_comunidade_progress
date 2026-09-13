@@ -1,0 +1,511 @@
+/* ============================================
+   PROGRESS APP - DESIGN SYSTEM
+   Sistema de Gestão de Estudos e Objetivos de Carreira
+   Acessibilidade AAA (WCAG 2.1) - Contraste 7:1
+   ============================================ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ========== DESIGN TOKENS - CORES DA MARCA ========== */
+  
+  /* Primária - Azul Confiança */
+  --progress-color-primary-base: #2563EB;
+  --progress-color-primary-light: #60A5FA;
+  --progress-color-primary-dark: #1E40AF;
+  --progress-color-primary-surface: #EFF6FF;
+  
+  /* Secundária - Violeta Criatividade */
+  --progress-color-secondary-base: #7C3AED;
+  --progress-color-secondary-light: #A78BFA;
+  --progress-color-secondary-dark: #5B21B6;
+  --progress-color-secondary-surface: #F5F3FF;
+  
+  /* ========== CORES SEMÂNTICAS ========== */
+  
+  /* Sucesso - Verde Crescimento */
+  --progress-color-success-base: #16A34A;
+  --progress-color-success-light: #4ADE80;
+  --progress-color-success-dark: #15803D;
+  --progress-color-success-surface: #F0FDF4;
+  
+  /* Aviso - Âmbar Atenção */
+  --progress-color-warning-base: #D97706;
+  --progress-color-warning-light: #FBBF24;
+  --progress-color-warning-dark: #B45309;
+  --progress-color-warning-surface: #FFFBEB;
+  
+  /* Erro - Vermelho Alerta */
+  --progress-color-error-base: #DC2626;
+  --progress-color-error-light: #F87171;
+  --progress-color-error-dark: #991B1B;
+  --progress-color-error-surface: #FEF2F2;
+  
+  /* Info - Ciano Informação */
+  --progress-color-info-base: #0891B2;
+  --progress-color-info-light: #22D3EE;
+  --progress-color-info-dark: #155E75;
+  --progress-color-info-surface: #ECFEFF;
+  
+  /* ========== CORES UTILITÁRIAS - LIGHT MODE ========== */
+  
+  /* Texto */
+  --progress-color-text-primary: #111827;
+  --progress-color-text-secondary: #4B5563;
+  --progress-color-text-tertiary: #6B7280;
+  --progress-color-text-disabled: #9CA3AF;
+  --progress-color-text-on-dark: #F9FAFB;
+  --progress-color-text-on-primary: #FFFFFF;
+  
+  /* Backgrounds */
+  --progress-color-bg-primary: #FFFFFF;
+  --progress-color-bg-secondary: #F9FAFB;
+  --progress-color-bg-tertiary: #F3F4F6;
+  --progress-color-bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* Bordas */
+  --progress-color-border-default: #E5E7EB;
+  --progress-color-border-hover: #D1D5DB;
+  --progress-color-border-focus: #2563EB;
+  --progress-color-border-error: #DC2626;
+  
+  /* ========== CORES POR JORNADA ========== */
+  
+  /* Estudos em Andamento */
+  --progress-journey-learning-bg: #EFF6FF;
+  --progress-journey-learning-border: #2563EB;
+  --progress-journey-learning-text: #1E40AF;
+  
+  /* Objetivos */
+  --progress-journey-goal-bg: #F5F3FF;
+  --progress-journey-goal-border: #7C3AED;
+  --progress-journey-goal-text: #5B21B6;
+  
+  /* Conquistas */
+  --progress-journey-achievement-bg: #F0FDF4;
+  --progress-journey-achievement-border: #16A34A;
+  --progress-journey-achievement-text: #15803D;
+  
+  /* ========== DESIGN TOKENS - TIPOGRAFIA ========== */
+  
+  /* Font Family */
+  --progress-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --progress-font-family-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --progress-font-family-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  
+  /* Font Sizes */
+  --progress-text-xs: 0.75rem;          /* 12px */
+  --progress-text-sm: 0.875rem;         /* 14px */
+  --progress-text-base: 1rem;           /* 16px */
+  --progress-text-lg: 1.125rem;         /* 18px */
+  --progress-text-xl: 1.25rem;          /* 20px */
+  --progress-text-2xl: 1.5rem;          /* 24px */
+  --progress-text-3xl: 1.875rem;        /* 30px */
+  --progress-text-4xl: 2.25rem;         /* 36px */
+  --progress-text-5xl: 3rem;            /* 48px */
+  
+  /* Font Weights */
+  --progress-font-weight-light: 300;
+  --progress-font-weight-regular: 400;
+  --progress-font-weight-medium: 500;
+  --progress-font-weight-semibold: 600;
+  --progress-font-weight-bold: 700;
+  --progress-font-weight-extrabold: 800;
+  
+  /* Line Heights */
+  --progress-leading-tight: 1.25;
+  --progress-leading-snug: 1.375;
+  --progress-leading-normal: 1.5;
+  --progress-leading-relaxed: 1.625;
+  --progress-leading-loose: 2;
+  
+  /* Letter Spacing */
+  --progress-tracking-tighter: -0.05em;
+  --progress-tracking-tight: -0.025em;
+  --progress-tracking-normal: 0;
+  --progress-tracking-wide: 0.025em;
+  --progress-tracking-wider: 0.05em;
+  
+  /* ========== DESIGN TOKENS - ESPAÇAMENTO ========== */
+  /* Sistema baseado em múltiplos de 4px */
+  
+  --progress-spacing-0: 0;
+  --progress-spacing-1: 0.25rem;        /* 4px */
+  --progress-spacing-2: 0.5rem;         /* 8px */
+  --progress-spacing-3: 0.75rem;        /* 12px */
+  --progress-spacing-4: 1rem;           /* 16px */
+  --progress-spacing-5: 1.25rem;        /* 20px */
+  --progress-spacing-6: 1.5rem;         /* 24px */
+  --progress-spacing-8: 2rem;           /* 32px */
+  --progress-spacing-10: 2.5rem;        /* 40px */
+  --progress-spacing-12: 3rem;          /* 48px */
+  --progress-spacing-16: 4rem;          /* 64px */
+  --progress-spacing-20: 5rem;          /* 80px */
+  --progress-spacing-24: 6rem;          /* 96px */
+  
+  /* Aliases Semânticos */
+  --progress-spacing-xs: var(--progress-spacing-1);
+  --progress-spacing-sm: var(--progress-spacing-2);
+  --progress-spacing-md: var(--progress-spacing-4);
+  --progress-spacing-lg: var(--progress-spacing-6);
+  --progress-spacing-xl: var(--progress-spacing-8);
+  --progress-spacing-2xl: var(--progress-spacing-12);
+  
+  /* ========== DESIGN TOKENS - BORDER RADIUS ========== */
+  
+  --progress-radius-none: 0;
+  --progress-radius-sm: 0.25rem;        /* 4px */
+  --progress-radius-md: 0.5rem;         /* 8px */
+  --progress-radius-lg: 0.75rem;        /* 12px */
+  --progress-radius-xl: 1rem;           /* 16px */
+  --progress-radius-2xl: 1.5rem;        /* 24px */
+  --progress-radius-full: 9999px;
+  
+  /* ========== DESIGN TOKENS - SHADOWS ========== */
+  
+  --progress-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --progress-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --progress-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --progress-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --progress-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --progress-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* ========== Z-INDEX ========== */
+  
+  --progress-z-index-base: 0;
+  --progress-z-index-dropdown: 1000;
+  --progress-z-index-sticky: 1020;
+  --progress-z-index-fixed: 1030;
+  --progress-z-index-modal-backdrop: 1040;
+  --progress-z-index-modal: 1050;
+  --progress-z-index-popover: 1060;
+  --progress-z-index-tooltip: 1070;
+  
+  /* ========== APLICAÇÃO EM VARIÁVEIS TAILWIND ========== */
+  
+  --background: var(--progress-color-bg-secondary);
+  --foreground: var(--progress-color-text-primary);
+  
+  --card: var(--progress-color-bg-primary);
+  --card-foreground: var(--progress-color-text-primary);
+  
+  --popover: var(--progress-color-bg-primary);
+  --popover-foreground: var(--progress-color-text-primary);
+  
+  --primary: var(--progress-color-primary-base);
+  --primary-foreground: var(--progress-color-text-on-primary);
+  
+  --secondary: var(--progress-color-secondary-base);
+  --secondary-foreground: var(--progress-color-text-on-primary);
+  
+  --muted: var(--progress-color-bg-tertiary);
+  --muted-foreground: var(--progress-color-text-secondary);
+  
+  --accent: var(--progress-color-primary-light);
+  --accent-foreground: var(--progress-color-text-primary);
+  
+  --destructive: var(--progress-color-error-base);
+  --destructive-foreground: var(--progress-color-text-on-primary);
+  
+  --border: var(--progress-color-border-default);
+  --input: var(--progress-color-border-default);
+  --ring: var(--progress-color-border-focus);
+  
+  --radius: var(--progress-radius-md);
+}
+
+/* ========== DARK MODE ========== */
+
+.dark {
+  /* Texto - Dark Mode */
+  --progress-color-text-primary: #F9FAFB;
+  --progress-color-text-secondary: #E5E7EB;
+  --progress-color-text-tertiary: #D1D5DB;
+  --progress-color-text-disabled: #9CA3AF;
+  --progress-color-text-on-dark: #111827;
+  
+  /* Backgrounds - Dark Mode */
+  --progress-color-bg-primary: #1F2937;
+  --progress-color-bg-secondary: #111827;
+  --progress-color-bg-tertiary: #374151;
+  --progress-color-bg-overlay: rgba(0, 0, 0, 0.7);
+  
+  /* Bordas - Dark Mode */
+  --progress-color-border-default: #374151;
+  --progress-color-border-hover: #4B5563;
+  --progress-color-border-focus: #60A5FA;
+  
+  /* Cores brand ajustadas para dark */
+  --progress-color-primary-base: #60A5FA;
+  --progress-color-primary-dark: #93C5FD;
+  --progress-color-secondary-base: #A78BFA;
+  --progress-color-secondary-dark: #C4B5FD;
+  
+  /* Jornadas - Dark Mode */
+  --progress-journey-learning-bg: #1E3A8A;
+  --progress-journey-learning-text: #BFDBFE;
+  --progress-journey-goal-bg: #4C1D95;
+  --progress-journey-goal-text: #DDD6FE;
+  --progress-journey-achievement-bg: #14532D;
+  --progress-journey-achievement-text: #BBF7D0;
+  
+  /* Aplicação em variáveis Tailwind */
+  --background: var(--progress-color-bg-secondary);
+  --foreground: var(--progress-color-text-primary);
+  
+  --card: var(--progress-color-bg-primary);
+  --card-foreground: var(--progress-color-text-primary);
+  
+  --popover: var(--progress-color-bg-primary);
+  --popover-foreground: var(--progress-color-text-primary);
+  
+  --primary: var(--progress-color-primary-base);
+  --primary-foreground: var(--progress-color-text-on-dark);
+  
+  --secondary: var(--progress-color-secondary-base);
+  --secondary-foreground: var(--progress-color-text-on-dark);
+  
+  --muted: var(--progress-color-bg-tertiary);
+  --muted-foreground: var(--progress-color-text-secondary);
+  
+  --accent: var(--progress-color-primary-light);
+  --accent-foreground: var(--progress-color-text-on-dark);
+  
+  --border: var(--progress-color-border-default);
+  --input: var(--progress-color-border-default);
+  --ring: var(--progress-color-border-focus);
+}
+
+/* ========== BASE STYLES ========== */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--progress-font-family-base);
+    font-size: var(--progress-text-base);
+  }
+}
+
+/* ========== HIERARQUIA TIPOGRÁFICA ========== */
+
+@layer base {
+  /* Display */
+  .text-display-xl {
+    font-size: var(--progress-text-5xl);
+    font-weight: var(--progress-font-weight-extrabold);
+    line-height: var(--progress-leading-tight);
+    letter-spacing: var(--progress-tracking-tight);
+  }
+  
+  .text-display-l {
+    font-size: var(--progress-text-4xl);
+    font-weight: var(--progress-font-weight-bold);
+    line-height: var(--progress-leading-tight);
+    letter-spacing: var(--progress-tracking-tight);
+  }
+  
+  /* Headings */
+  h1, .text-h1 {
+    font-size: var(--progress-text-3xl);
+    font-weight: var(--progress-font-weight-bold);
+    line-height: var(--progress-leading-snug);
+    color: var(--progress-color-text-primary);
+  }
+  
+  h2, .text-h2 {
+    font-size: var(--progress-text-2xl);
+    font-weight: var(--progress-font-weight-semibold);
+    line-height: var(--progress-leading-snug);
+    color: var(--progress-color-text-primary);
+  }
+  
+  h3, .text-h3 {
+    font-size: var(--progress-text-xl);
+    font-weight: var(--progress-font-weight-semibold);
+    line-height: var(--progress-leading-normal);
+    color: var(--progress-color-text-primary);
+  }
+  
+  h4, .text-h4 {
+    font-size: var(--progress-text-lg);
+    font-weight: var(--progress-font-weight-medium);
+    line-height: var(--progress-leading-normal);
+    color: var(--progress-color-text-primary);
+  }
+  
+  /* Body */
+  p, .text-body {
+    font-size: var(--progress-text-base);
+    font-weight: var(--progress-font-weight-regular);
+    line-height: var(--progress-leading-normal);
+    color: var(--progress-color-text-primary);
+  }
+  
+  .text-body-lg {
+    font-size: var(--progress-text-lg);
+    font-weight: var(--progress-font-weight-regular);
+    line-height: var(--progress-leading-relaxed);
+  }
+  
+  .text-body-sm {
+    font-size: var(--progress-text-sm);
+    font-weight: var(--progress-font-weight-regular);
+    line-height: var(--progress-leading-normal);
+    color: var(--progress-color-text-secondary);
+  }
+  
+  /* Utility */
+  small, .text-caption {
+    font-size: var(--progress-text-xs);
+    font-weight: var(--progress-font-weight-regular);
+    line-height: var(--progress-leading-normal);
+    color: var(--progress-color-text-tertiary);
+  }
+  
+  label, .text-label {
+    font-size: var(--progress-text-sm);
+    font-weight: var(--progress-font-weight-medium);
+    line-height: var(--progress-leading-normal);
+    color: var(--progress-color-text-secondary);
+  }
+  
+  button, .text-button {
+    font-size: var(--progress-text-sm);
+    font-weight: var(--progress-font-weight-medium);
+    line-height: var(--progress-leading-normal);
+    letter-spacing: var(--progress-tracking-wide);
+  }
+  
+  /* Code */
+  code {
+    font-family: var(--progress-font-family-mono);
+    font-size: var(--progress-text-sm);
+    background: var(--progress-color-bg-tertiary);
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--progress-radius-sm);
+  }
+  
+  pre {
+    font-family: var(--progress-font-family-mono);
+    font-size: var(--progress-text-sm);
+    line-height: var(--progress-leading-relaxed);
+    background: var(--progress-color-bg-tertiary);
+    padding: var(--progress-spacing-4);
+    border-radius: var(--progress-radius-md);
+    overflow-x: auto;
+  }
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+@layer utilities {
+  /* Estados de foco acessíveis */
+  .focus-visible-ring {
+    outline: 2px solid var(--progress-color-border-focus);
+    outline-offset: 2px;
+  }
+  
+  /* Cards */
+  .card-sm {
+    padding: var(--progress-spacing-4);
+    gap: var(--progress-spacing-3);
+  }
+  
+  .card-md {
+    padding: var(--progress-spacing-6);
+    gap: var(--progress-spacing-4);
+  }
+  
+  .card-lg {
+    padding: var(--progress-spacing-8);
+    gap: var(--progress-spacing-6);
+  }
+  
+  /* Jornadas */
+  .journey-learning {
+    background: var(--progress-journey-learning-bg);
+    border-color: var(--progress-journey-learning-border);
+    color: var(--progress-journey-learning-text);
+  }
+  
+  .journey-goal {
+    background: var(--progress-journey-goal-bg);
+    border-color: var(--progress-journey-goal-border);
+    color: var(--progress-journey-goal-text);
+  }
+  
+  .journey-achievement {
+    background: var(--progress-journey-achievement-bg);
+    border-color: var(--progress-journey-achievement-border);
+    color: var(--progress-journey-achievement-text);
+  }
+}
+
+/* ========== ANIMAÇÕES RESPEITANDO PREFERÊNCIAS ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========== TOAST NOTIFICATIONS - ACESSIBILIDADE AAA ========== */
+
+/* Light Mode */
+:root [data-sonner-toast][data-type="success"] {
+  background-color: var(--progress-color-success-surface) !important;
+  border-color: var(--progress-color-success-base) !important;
+  color: var(--progress-color-success-dark) !important;
+}
+
+:root [data-sonner-toast][data-type="error"] {
+  background-color: var(--progress-color-error-surface) !important;
+  border-color: var(--progress-color-error-base) !important;
+  color: var(--progress-color-error-dark) !important;
+}
+
+:root [data-sonner-toast][data-type="warning"] {
+  background-color: var(--progress-color-warning-surface) !important;
+  border-color: var(--progress-color-warning-base) !important;
+  color: var(--progress-color-warning-dark) !important;
+}
+
+:root [data-sonner-toast][data-type="info"] {
+  background-color: var(--progress-color-info-surface) !important;
+  border-color: var(--progress-color-info-base) !important;
+  color: var(--progress-color-info-dark) !important;
+}
+
+/* Dark Mode */
+.dark [data-sonner-toast][data-type="success"] {
+  background-color: #14532D !important;
+  border-color: var(--progress-color-success-base) !important;
+  color: #BBF7D0 !important;
+}
+
+.dark [data-sonner-toast][data-type="error"] {
+  background-color: #7F1D1D !important;
+  border-color: var(--progress-color-error-base) !important;
+  color: #FECACA !important;
+}
+
+.dark [data-sonner-toast][data-type="warning"] {
+  background-color: #78350F !important;
+  border-color: var(--progress-color-warning-base) !important;
+  color: #FED7AA !important;
+}
+
+.dark [data-sonner-toast][data-type="info"] {
+  background-color: #164E63 !important;
+  border-color: var(--progress-color-info-base) !important;
+  color: #A5F3FC !important;
+}
