@@ -76,6 +76,8 @@ export function CreatePostModal({ open, onClose, onPublish }: {
   onClose: () => void;
   onPublish: (post: CommunityPost, xpEarned: number) => void;
 }) {
+  const { user } = useData();
+
   const [postType, setPostType] = useState<PostType>("questao");
   const [title, setTitle]       = useState("");
   const [body, setBody]         = useState("");
@@ -110,6 +112,10 @@ export function CreatePostModal({ open, onClose, onPublish }: {
       createdAt: todayISO(),
       isFromUser: true,
     };
+    setEarnedXP(xp);
+    onPublish(post, xp);
+    setStep("success");
+  };
 
   const handleClose = () => {
     setPostType("questao"); setTitle(""); setBody("");
