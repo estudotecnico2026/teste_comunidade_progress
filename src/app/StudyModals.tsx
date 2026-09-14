@@ -37,7 +37,7 @@ export function StudyCreateModal({ open, onClose, onAdd }: {
   onClose: () => void;
   onAdd: (s: import("./types").Study) => void;
 }) {
-  const { goals } = useData();
+  const { goals, user } = useData();
   const [title, setTitle] = useState("");
   const [type, setType] = useState<StudyType>("curso");
   const [totalHours, setTotalHours] = useState("10");
