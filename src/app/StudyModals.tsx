@@ -55,7 +55,7 @@ export function StudyCreateModal({ open, onClose, onAdd }: {
     const hours = Math.max(1, parseInt(totalHours) || 10);
     onAdd({
       id: `s${Date.now()}`,
-      userId: INIT_USER.uid,
+      userId: user.uid,
       type,
       title: title.trim(),
       area: STUDY_TYPE_CONFIG[type].label,
